@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Ovynera — Guide SOPK</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Jost:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg: #FBF6F2;
+    --bg-deep: #F3E3DD;
+    --ink: #4A3B35;
+    --muted: #A98F87;
+    --pink: #D9A0A6;
+    --pink-deep: #C07E87;
+    --sage: #8CA37B;
+    --sage-bg: #EBF0E4;
+    --peach: #C99552;
+    --peach-bg: #F6EAD7;
+    --coral: #C67268;
+    --coral-bg: #F5E1DC;
+    --line: #EEDDD6;
+    --card: #FFFFFF;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Jost', sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    -webkit-font-smoothing:antialiased;
+  }
+  #app{
+    width:100%; max-width:480px; min-height:100vh;
+    background:var(--bg); display:flex; flex-direction:column;
+    position:relative; overflow-x:hidden;
+  }
+  .screen{ display:none; flex-direction:column; flex:1; animation:fade .3s ease; }
+  .screen.active{ display:flex; }
+  @keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+  h1,h2,h3{ font-family:'Cormorant Garamond', serif; font-weight:600; }
+
+  /* ---------- HOME ---------- */
+  .home-top{
+    background: linear-gradient(160deg, var(--pink) 0%, var(--pink-deep) 100%);
+    color:#FFF7F5; padding:46px 30px 34px; border-radius:0 0 30px 30px;
+    text-align:center; position:relative;
+  }
+  .eyebrow{
+    font-size:11px; letter-spacing:0.22em; text-transform:uppercase;
+    color:#FBE6E4; margin-bottom:10px; font-weight:500;
+  }
+  .home-top h1{ font-style:italic; font-size:44px; line-height:1; margin-bottom:10px; letter-spacing:0.01em; }
+  .home-top p{ font-size:13.5px; line-height:1.6; color:#FCEAE8; max-width:30ch; margin:0 auto; font-weight:300; }
+
+  .home-body{ padding:24px 22px 8px; display:flex; flex-direction:column; gap:16px; }
+
+  .scan-btn{
+    background:var(--pink-deep); color:#fff; border:none; border-radius:999px;
+    padding:18px; font-family:'Jost', sans-serif; font-size:15px; font-weight:600;
+    letter-spacing:0.03em; display:flex; align-items:center; justify-content:center; gap:10px;
+    cursor:pointer; box-shadow:0 10px 20px -10px rgba(192,126,135,0.6);
+  }
+  .scan-btn:active{ transform:scale(0.98); }
+
+  .secondary-row{ display:flex; gap:10px; }
+  .secondary-btn{
+    flex:1; background:var(--card); border:1px solid var(--line);
+    border-radius:14px; padding:13px 8px; text-align:center;
+    font-size:12.5px; font-weight:600; color:var(--pink-deep);
+    cursor:pointer; font-family:'Jost', sans-serif; letter-spacing:0.02em;
+  }
+  .secondary-btn .ic{ display:block; font-size:16px; margin-bottom:4px; }
+
+  .manual-link{
+    text-align:center; font-size:13px; color:var(--pink-deep);
+    text-decoration:underline; text-underline-offset:3px;
+    background:none; border:none; cursor:pointer; padding:2px;
+    font-family:'Jost', sans-serif;
+  }
+
+  .info-card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:15px 17px; font-size:12.5px; line-height:1.55; color:var(--muted);
+  }
+  .info-card b{ color:var(--ink); font-weight:600; }
+
+  .home-section-title{
+    font-size:11px; text-transform:uppercase; letter-spacing:0.14em;
+    color:var(--muted); font-weight:600; margin:8px 2px 2px; display:flex; justify-content:space-between; align-items:center;
+  }
+  .home-section-title a{ font-size:11.5px; color:var(--pink-deep); text-decoration:none; letter-spacing:0.02em; }
+
+  .home-history-scroll{ display:flex; flex-direction:column; gap:8px; padding-bottom:20px; }
+
+  .disclaimer{ font-size:10.5px; color:#C7ADA5; text-align:center; padding:6px 24px 26px; line-height:1.5; }
+
+  /* ---------- SCAN ---------- */
+  .scan-header{ display:flex; align-items:center; gap:14px; padding:20px 20px 14px; }
+  .back-btn{
+    width:36px; height:36px; border-radius:50%; background:var(--card); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:17px; color:var(--ink); flex-shrink:0;
+  }
+  .scan-header h2{ font-size:20px; font-style:italic; }
+  #reader{ width:100%; }
+  #reader video{ border-radius:0 !important; }
+  .scan-frame{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 24px 30px; gap:16px; text-align:center; }
+  .manual-entry{ display:flex; gap:8px; width:100%; margin-top:6px; }
+  .manual-entry input{ flex:1; padding:13px 15px; border-radius:12px; border:1px solid var(--line); font-size:14px; font-family:'Jost', sans-serif; }
+  .manual-entry button{ padding:13px 18px; border-radius:12px; border:none; background:var(--pink-deep); color:#fff; font-weight:600; cursor:pointer; }
+  .hint{ font-size:12px; color:var(--muted); line-height:1.5; }
+
+  /* ---------- LOADING ---------- */
+  .loading-screen{ align-items:center; justify-content:center; gap:16px; }
+  .spinner{ width:40px; height:40px; border-radius:50%; border:3px solid var(--bg-deep); border-top-color:var(--pink-deep); animation:spin 0.9s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg);} }
+  .loading-screen p{ color:var(--muted); font-size:13.5px; }
+
+  /* ---------- RESULT ---------- */
+  .result-header{ display:flex; align-items:center; gap:14px; padding:20px 20px 6px; }
+  .result-header h2{ font-size:19px; flex:1; font-style:italic; }
+  .result-scroll{ flex:1; overflow-y:auto; padding:8px 24px 40px; }
+  .product-name{ font-size:21px; margin:12px 0 2px; line-height:1.25; font-style:italic; }
+  .product-brand{ font-size:12.5px; color:var(--muted); margin-bottom:18px; letter-spacing:0.02em; }
+
+  .score-card{
+    background:linear-gradient(155deg, var(--bg-deep) 0%, #fff 100%);
+    border:1px solid var(--line); border-radius:20px;
+    padding:24px; text-align:center; margin-bottom:20px;
+  }
+  .score-eyebrow{ font-size:11px; text-transform:uppercase; letter-spacing:0.16em; font-weight:600; margin-bottom:8px; }
+  .score-num-row{ display:flex; align-items:baseline; justify-content:center; gap:5px; }
+  .score-num{ font-family:'Cormorant Garamond', serif; font-style:italic; font-size:50px; font-weight:600; line-height:1; }
+  .score-den{ font-size:14px; color:var(--muted); font-weight:400; }
+  .score-sub{ font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-top:4px; }
+  .score-card.good .score-eyebrow, .score-card.good .score-num{ color:var(--sage); }
+  .score-card.mid .score-eyebrow, .score-card.mid .score-num{ color:var(--peach); }
+  .score-card.bad .score-eyebrow, .score-card.bad .score-num{ color:var(--coral); }
+
+  .detail-card{ background:var(--card); border:1px solid var(--line); border-radius:16px; margin-bottom:20px; overflow:hidden; }
+  .detail-row{ display:flex; align-items:center; gap:10px; padding:13px 16px; border-bottom:1px solid var(--line); }
+  .detail-row:last-child{ border-bottom:none; }
+  .detail-icon{ font-size:15px; width:20px; text-align:center; flex-shrink:0; }
+  .detail-label{ font-size:13px; font-weight:600; color:var(--ink); flex:1; }
+  .detail-value{ font-size:12px; font-weight:600; padding:4px 10px; border-radius:999px; }
+  .detail-value.dot-green{ background:var(--sage-bg); color:var(--sage); }
+  .detail-value.dot-amber{ background:var(--peach-bg); color:var(--peach); }
+  .detail-value.dot-red{ background:var(--coral-bg); color:var(--coral); }
+  .detail-value.dot-grey{ background:#F1E7E3; color:var(--muted); }
+
+  .stat-row{ display:flex; gap:10px; margin-bottom:20px; }
+  .stat-box{ flex:1; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:13px 8px; text-align:center; }
+  .stat-box .num{ font-family:'Cormorant Garamond', serif; font-size:19px; font-weight:600; color:var(--pink-deep); }
+  .stat-box .lbl{ font-size:10px; color:var(--muted); margin-top:3px; text-transform:uppercase; letter-spacing:0.04em; }
+
+  .section-title{ font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:var(--muted); margin:0 0 10px; font-weight:600; }
+  .point-list{ list-style:none; margin-bottom:22px; }
+  .point-list li{ display:flex; gap:10px; padding:11px 14px; margin-bottom:7px; background:var(--card); border:1px solid var(--line); border-radius:13px; font-size:13.5px; line-height:1.45; }
+  .point-icon{ flex-shrink:0; width:19px; height:19px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; margin-top:1px; }
+  .point-icon.plus{ background:var(--sage-bg); color:var(--sage); }
+  .point-icon.minus{ background:var(--coral-bg); color:var(--coral); }
+
+  .action-row{ display:flex; gap:10px; margin-bottom:10px; }
+  .list-add-btn{ flex:1; padding:14px; border-radius:999px; border:1px solid var(--pink-deep); background:#fff; color:var(--pink-deep); font-weight:600; font-size:13.5px; cursor:pointer; font-family:'Jost', sans-serif; }
+  .rescan-btn{ width:100%; padding:15px; border-radius:999px; border:1px solid var(--line); background:var(--card); color:var(--pink-deep); font-weight:600; font-size:14px; cursor:pointer; font-family:'Jost', sans-serif; }
+
+  .error-box{ text-align:center; padding:40px 28px; gap:12px; display:flex; flex-direction:column; align-items:center; flex:1; justify-content:center; }
+  .error-box .em{ font-size:34px; }
+  .error-box h3{ font-size:18px; font-style:italic; }
+  .error-box p{ font-size:13.5px; color:var(--muted); line-height:1.5; max-width:30ch; }
+
+  /* ---------- HISTORY CARD (réutilisée accueil + bibliothèque) ---------- */
+  .lib-card{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 14px; display:flex; align-items:center; gap:12px; cursor:pointer; }
+  .lib-dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .lib-info{ flex:1; min-width:0; }
+  .lib-name{ font-size:13.5px; font-weight:600; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lib-brand{ font-size:11.5px; color:var(--muted); }
+  .lib-score{ font-family:'Cormorant Garamond', serif; font-weight:700; font-size:18px; flex-shrink:0; font-style:italic; }
+  .empty-lib{ text-align:center; padding:30px 20px; color:var(--muted); font-size:13px; line-height:1.6; }
+  .empty-lib .em{ font-size:26px; display:block; margin-bottom:8px; }
+
+  /* ---------- LIBRARY (listes) ---------- */
+  .library-tabs{ display:flex; gap:6px; padding:14px 20px 12px; overflow-x:auto; }
+  .tab-chip{ flex-shrink:0; padding:8px 14px; border-radius:999px; border:1px solid var(--line); background:var(--card); font-size:12px; font-weight:600; color:var(--muted); cursor:pointer; font-family:'Jost', sans-serif; white-space:nowrap; }
+  .tab-chip.active{ background:var(--pink-deep); color:#fff; border-color:var(--pink-deep); }
+  .library-scroll{ flex:1; overflow-y:auto; padding:4px 20px 30px; display:flex; flex-direction:column; gap:9px; }
+  .new-list-btn{ margin:0 20px 12px; padding:11px; border-radius:999px; border:1.5px dashed var(--pink); background:transparent; color:var(--pink-deep); font-weight:600; font-size:12.5px; cursor:pointer; font-family:'Jost', sans-serif; }
+
+  /* ---------- MODAL ---------- */
+  .modal-overlay{ position:fixed; inset:0; background:rgba(74,59,53,0.4); display:none; align-items:flex-end; justify-content:center; z-index:50; }
+  .modal-overlay.active{ display:flex; }
+  .modal-card{ background:#fff; width:100%; max-width:480px; border-radius:22px 22px 0 0; padding:22px 20px 28px; max-height:70vh; overflow-y:auto; }
+  .modal-card h3{ font-size:18px; margin-bottom:14px; font-style:italic; }
+  .list-option{ display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid var(--line); font-size:14px; cursor:pointer; }
+  .list-check{ width:21px; height:21px; border-radius:6px; border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:12px; color:#fff; }
+  .list-check.checked{ background:var(--pink-deep); border-color:var(--pink-deep); }
+  .new-list-inline{ display:flex; gap:8px; margin-top:14px; }
+  .new-list-inline input{ flex:1; padding:11px 13px; border-radius:12px; border:1px solid var(--line); font-size:13.5px; font-family:'Jost', sans-serif; }
+  .new-list-inline button{ padding:11px 15px; border-radius:12px; border:none; background:var(--pink-deep); color:#fff; font-weight:600; cursor:pointer; }
+  .modal-done{ width:100%; margin-top:16px; padding:14px; border-radius:999px; border:none; background:var(--ink); color:#fff; font-weight:600; font-size:14px; cursor:pointer; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HOME -->
+  <section class="screen active" id="screen-home">
+    <div class="home-top">
+      <div class="eyebrow">✦ Guide SOPK</div>
+      <h1>Ovynera</h1>
+      <p>Une lecture posée de tes produits, alimentaires et cosmétiques, pensée pour ton équilibre hormonal.</p>
+    </div>
+    <div class="home-body">
+      <button class="scan-btn" onclick="goToScan()">Scanner un produit</button>
+      <div class="secondary-row">
+        <button class="secondary-btn" onclick="openLibrary('__lists__')"><span class="ic">◇</span>Mes listes</button>
+        <button class="secondary-btn" onclick="openLibrary('all')"><span class="ic">◇</span>Tout l'historique</button>
+      </div>
+      <button class="manual-link" onclick="goToScan(true)">Saisir le code-barres manuellement</button>
+      <div class="info-card"><b>Comment ça marche :</b> scanne n'importe quel produit — aliment ou cosmétique, Ovynera détecte automatiquement de quoi il s'agit et calcule un score sur 100 selon les critères qui comptent pour le SOPK.</div>
+
+      <div class="home-section-title">Récemment scanné <a href="#" onclick="openLibrary('all'); return false;">Tout voir →</a></div>
+      <div class="home-history-scroll" id="home-history"></div>
+    </div>
+    <div class="disclaimer">Cet outil donne une indication générale et ne remplace pas l'avis d'un·e professionnel·le de santé.</div>
+  </section>
+
+  <!-- SCAN -->
+  <section class="screen" id="screen-scan">
+    <div class="scan-header">
+      <button class="back-btn" onclick="goHome()">←</button>
+      <h2>Scanner</h2>
+    </div>
+    <div id="reader"></div>
+    <div class="scan-frame">
+      <p class="hint" id="scan-hint">Vise le code-barres du produit — aliment ou cosmétique, aucun choix à faire. Si la caméra ne se lance pas, utilise la saisie manuelle.</p>
+      <div class="manual-entry">
+        <input type="text" inputmode="numeric" id="manual-barcode" placeholder="Code-barres (ex: 3017620422003)">
+        <button onclick="submitManual()">Go</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOADING -->
+  <section class="screen loading-screen" id="screen-loading">
+    <div class="spinner"></div>
+    <p id="loading-text">Recherche du produit…</p>
+  </section>
+
+  <!-- ERROR -->
+  <section class="screen" id="screen-error">
+    <div class="error-box">
+      <div class="em">◇</div>
+      <h3>Produit introuvable</h3>
+      <p id="error-msg">Ce code-barres n'est dans aucune de nos bases pour le moment.</p>
+      <button class="rescan-btn" onclick="goToScan()">Réessayer</button>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section class="screen" id="screen-result">
+    <div class="result-header">
+      <button class="back-btn" onclick="goHome()">←</button>
+      <h2>Résultat</h2>
+    </div>
+    <div class="result-scroll">
+      <div class="product-name" id="p-name">—</div>
+      <div class="product-brand" id="p-brand">—</div>
+
+      <div class="score-card" id="score-card">
+        <div class="score-eyebrow" id="score-eyebrow">—</div>
+        <div class="score-num-row"><span class="score-num" id="gauge-pct">--</span><span class="score-den">/100</span></div>
+        <div class="score-sub" id="gauge-label-text">score SOPK</div>
+      </div>
+
+      <div class="detail-card" id="detail-card"></div>
+
+      <div class="stat-row">
+        <div class="stat-box"><div class="num" id="stat-1">–</div><div class="lbl" id="lbl-1">Glucides /100g</div></div>
+        <div class="stat-box"><div class="num" id="stat-2">–</div><div class="lbl" id="lbl-2">Sucres /100g</div></div>
+        <div class="stat-box"><div class="num" id="stat-3">–</div><div class="lbl" id="lbl-3">Fibres /100g</div></div>
+      </div>
+
+      <div class="section-title">Points positifs</div>
+      <ul class="point-list" id="list-positive"></ul>
+      <div class="section-title">Points de vigilance</div>
+      <ul class="point-list" id="list-negative"></ul>
+
+      <div class="action-row"><button class="list-add-btn" onclick="openListPicker()">Ajouter à une liste</button></div>
+      <button class="rescan-btn" onclick="goToScan()">Scanner un autre produit</button>
+    </div>
+  </section>
+
+  <!-- LIBRARY -->
+  <section class="screen" id="screen-library">
+    <div class="result-header">
+      <button class="back-btn" onclick="goHome()">←</button>
+      <h2>Mon espace</h2>
+    </div>
+    <div class="library-tabs" id="library-tabs"></div>
+    <button class="new-list-btn" onclick="promptNewList()">+ Créer une nouvelle liste</button>
+    <div class="library-scroll" id="library-scroll"></div>
+  </section>
+
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-card">
+    <h3>Ajouter à une liste</h3>
+    <div id="modal-list-options"></div>
+    <div class="new-list-inline">
+      <input type="text" id="modal-new-list-name" placeholder="Nouvelle liste (ex: Mes essentiels)">
+      <button onclick="createListFromModal()">Créer</button>
+    </div>
+    <button class="modal-done" onclick="closeListPicker()">Terminé</button>
+  </div>
+</div>
+
+<script>
+let html5QrCode = null;
+let currentRecord = null;
+let libraryFilter = 'all';
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id === 'screen-home') renderHomeHistory();
+}
+function goHome(){ stopScanner(); showScreen('screen-home'); }
+
+function goToScan(manualOnly){
+  showScreen('screen-scan');
+  document.getElementById('manual-barcode').value = '';
+  if(manualOnly){
+    document.getElementById('scan-hint').textContent = "Entre le code-barres inscrit sous le code EAN du produit.";
+    document.getElementById('manual-barcode').focus();
+    return;
+  }
+  document.getElementById('scan-hint').textContent = "Vise le code-barres du produit — aliment ou cosmétique, aucun choix à faire. Si la caméra ne se lance pas, utilise la saisie manuelle.";
+  startScanner();
+}
+function startScanner(){
+  if(!window.Html5Qrcode){
+    document.getElementById('scan-hint').textContent = "Caméra indisponible ici — utilise la saisie manuelle.";
+    return;
+  }
+  html5QrCode = new Html5Qrcode("reader");
+  const config = { fps: 10, qrbox: { width: 250, height: 150 } };
+  html5QrCode.start(
+    { facingMode: "environment" }, config,
+    (decodedText) => { stopScanner(); lookupProduct(decodedText); },
+    () => {}
+  ).catch(() => {
+    document.getElementById('scan-hint').textContent = "Impossible d'accéder à la caméra (permissions ou navigateur). Utilise la saisie manuelle ci-dessous.";
+  });
+}
+function stopScanner(){
+  if(html5QrCode){ html5QrCode.stop().then(()=>{ html5QrCode.clear(); }).catch(()=>{}); html5QrCode = null; }
+}
+function submitManual(){
+  const code = document.getElementById('manual-barcode').value.trim();
+  if(!code) return;
+  stopScanner();
+  lookupProduct(code);
+}
+
+// ---- DÉTECTION AUTOMATIQUE ALIMENT / COSMÉTIQUE ----
+async function fetchFrom(base, barcode){
+  try{
+    const res = await fetch(base + '/api/v2/product/' + barcode + '.json');
+    const data = await res.json();
+    if(data.status === 1 && data.product) return data.product;
+  }catch(e){}
+  return null;
+}
+
+async function lookupProduct(barcode){
+  showScreen('screen-loading');
+  document.getElementById('loading-text').textContent = "Recherche du produit…";
+
+  const foodProduct = await fetchFrom('https://world.openfoodfacts.org', barcode);
+  if(foodProduct){ renderResult(foodProduct, barcode); return; }
+
+  document.getElementById('loading-text').textContent = "Vérification côté cosmétique…";
+  const cosmeticProduct = await fetchFrom('https://world.openbeautyfacts.org', barcode);
+  if(cosmeticProduct){ renderCosmeticResult(cosmeticProduct, barcode); return; }
+
+  document.getElementById('error-msg').textContent = "Ce code-barres n'est dans aucune de nos bases (alimentaire ou cosmétique) pour le moment. Essaie un autre produit ou la saisie manuelle.";
+  showScreen('screen-error');
+}
+
+// ---- SCORING ALIMENTAIRE ----
+const INFLAMMATORY_ADDITIVES = ['en:e951','en:e102','en:e110','en:e124','en:e211','en:e621','en:e320','en:e321','en:e250','en:e251','en:e150d'];
+
+function computeSopkScore(product){
+  const n = product.nutriments || {};
+  const sugars = n['sugars_100g'] ?? null;
+  const carbs = n['carbohydrates_100g'] ?? null;
+  const fiber = n['fiber_100g'] ?? null;
+  const satFat = n['saturated-fat_100g'] ?? null;
+  const salt = n['salt_100g'] ?? null;
+  const proteins = n['proteins_100g'] ?? null;
+  const nova = product.nova_group ?? null;
+  const additives = product.additives_tags || [];
+
+  let score = 70;
+  const positives = [];
+  const negatives = [];
+
+  if(sugars !== null){
+    if(sugars > 15){ score -= 22; negatives.push("Très riche en sucres (" + sugars.toFixed(1) + " g/100g) — pic de glycémie et d'insuline, à limiter fortement avec le SOPK."); }
+    else if(sugars > 7){ score -= 12; negatives.push("Sucres modérément élevés (" + sugars.toFixed(1) + " g/100g) — peut solliciter l'insuline."); }
+    else if(sugars <= 5){ score += 8; positives.push("Faible en sucres (" + sugars.toFixed(1) + " g/100g), plutôt doux pour la glycémie."); }
+  }
+  if(fiber !== null){
+    if(fiber >= 5){ score += 12; positives.push("Riche en fibres (" + fiber.toFixed(1) + " g/100g) — ralentit l'absorption du glucose, un vrai plus pour le SOPK."); }
+    else if(fiber < 2){ score -= 8; negatives.push("Peu de fibres (" + fiber.toFixed(1) + " g/100g) — n'aide pas à réguler la glycémie."); }
+  }
+  if(carbs !== null && carbs > 15 && (fiber === null || fiber < 3)){
+    score -= 10; negatives.push("Glucides élevés (" + carbs.toFixed(1) + " g/100g) avec peu de fibres pour les compenser — index glycémique probablement élevé.");
+  }
+  if(satFat !== null && satFat > 5){ score -= 10; negatives.push("Gras saturés élevés (" + satFat.toFixed(1) + " g/100g) — peut favoriser l'inflammation et la résistance à l'insuline."); }
+  if(proteins !== null && proteins >= 8){ score += 6; positives.push("Bonne source de protéines (" + proteins.toFixed(1) + " g/100g) — aide à la satiété et stabilise la glycémie."); }
+  if(salt !== null && salt > 1.5){ score -= 5; negatives.push("Riche en sel (" + salt.toFixed(1) + " g/100g)."); }
+  if(nova === 4){ score -= 15; negatives.push("Aliment ultra-transformé (groupe NOVA 4) — associé à plus d'inflammation et de résistance à l'insuline."); }
+  else if(nova === 1){ score += 8; positives.push("Aliment peu ou pas transformé (groupe NOVA 1)."); }
+
+  const foundAdditives = additives.filter(a => INFLAMMATORY_ADDITIVES.includes(a));
+  if(foundAdditives.length > 0){
+    score -= Math.min(20, foundAdditives.length * 8);
+    negatives.push("Contient " + foundAdditives.length + " additif(s) pointé(s) comme potentiellement pro-inflammatoires ou perturbateurs.");
+  }
+
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  if(positives.length === 0) positives.push("Aucun point fort particulier identifié pour le SOPK dans les données disponibles.");
+  if(negatives.length === 0) negatives.push("Aucun point de vigilance majeur identifié dans les données disponibles.");
+
+  // Indice inflammatoire (spécifique SOPK)
+  let inflammScore = 0;
+  if(sugars !== null && sugars > 15) inflammScore += 1;
+  if(satFat !== null && satFat > 5) inflammScore += 1;
+  if(nova === 4) inflammScore += 1;
+  if(foundAdditives.length > 0) inflammScore += 1;
+  if(fiber !== null && fiber >= 5) inflammScore -= 1;
+  if(nova !== null && nova <= 2) inflammScore -= 1;
+  if(sugars !== null && sugars <= 5) inflammScore -= 1;
+  let inflammDot, inflammValue;
+  if(inflammScore >= 2){ inflammDot='dot-red'; inflammValue='Pro-inflammatoire'; }
+  else if(inflammScore <= -2){ inflammDot='dot-green'; inflammValue='Anti-inflammatoire'; }
+  else { inflammDot='dot-amber'; inflammValue='Neutre'; }
+
+  const details = [];
+  details.push({ icon:'◆', label:'Glycémie', dot: sugars===null?'dot-grey':(sugars<=5?'dot-green':(sugars<=15?'dot-amber':'dot-red')), value: sugars===null?'Non renseigné':(sugars<=5?'Faible':(sugars<=15?'Modérée':'Élevée')) });
+  details.push({ icon:'◆', label:'Fibres', dot: fiber===null?'dot-grey':(fiber>=5?'dot-green':(fiber>=2?'dot-amber':'dot-red')), value: fiber===null?'Non renseigné':(fiber>=5?'Riche':(fiber>=2?'Correctes':'Faibles')) });
+  details.push({ icon:'◆', label:'Protéines', dot: proteins===null?'dot-grey':(proteins>=8?'dot-green':'dot-amber'), value: proteins===null?'Non renseigné':(proteins>=8?'Bonne source':'Modérées') });
+  details.push({ icon:'◆', label:'Transformation', dot: nova===null?'dot-grey':(nova<=2?'dot-green':(nova===3?'dot-amber':'dot-red')), value: nova===null?'Non renseigné':(nova<=2?'Peu transformé':(nova===3?'Transformé':'Ultra-transformé')) });
+  details.push({ icon:'◆', label:'Inflammation', dot: inflammDot, value: inflammValue });
+
+  return { score, positives, negatives, sugars, carbs, fiber, details };
+}
+
+// ---- SCORING COSMÉTIQUE ----
+const FLAGGED_INGREDIENTS = [
+  { match:'paraben', label:'Parabènes', severity:18, reason:"Parabènes détectés — perturbateurs endocriniens suspectés, imitent les œstrogènes. À éviter en priorité avec le SOPK." },
+  { match:'phthalate', label:'Phtalates', severity:18, reason:"Phtalates détectés — perturbateurs endocriniens reconnus, associés à des déséquilibres hormonaux." },
+  { match:'phtalate', label:'Phtalates', severity:18, reason:"Phtalates détectés — perturbateurs endocriniens reconnus, associés à des déséquilibres hormonaux." },
+  { match:'triclosan', label:'Triclosan', severity:18, reason:"Triclosan détecté — interfère avec les hormones thyroïdiennes et sexuelles." },
+  { match:'oxybenzone', label:'Oxybenzone', severity:16, reason:"Filtre UV suspecté d'activité œstrogénique." },
+  { match:'benzophenone', label:'Benzophénone', severity:16, reason:"Filtre UV suspecté de perturber le système hormonal." },
+  { match:'cyclotetrasiloxane', label:'Cyclotetrasiloxane (D4)', severity:16, reason:"Silicone classé perturbateur endocrinien suspecté par l'UE." },
+  { match:'cyclopentasiloxane', label:'Cyclopentasiloxane (D5)', severity:10, reason:"Silicone controversé, suspecté d'effets hormonaux, restreint dans les produits rincés en UE." },
+  { match:'phenoxyethanol', label:'Phénoxyéthanol', severity:9, reason:"Conservateur controversé, effets hormonaux encore débattus mais surveillés." },
+  { match:'resorcinol', label:'Résorcinol', severity:10, reason:"Suspecté de perturber la fonction thyroïdienne." },
+  { match:'homosalate', label:'Homosalate', severity:10, reason:"Filtre UV suspecté d'activité hormonale." },
+  { match:'octocrylene', label:'Octocrylène', severity:9, reason:"Filtre UV controversé, peut se dégrader en substance préoccupante." },
+  { match:'aluminum chlorohydrate', label:"Chlorhydrate d'aluminium", severity:9, reason:"Composé aluminique des anti-transpirants, lien avec le système hormonal encore débattu." },
+  { match:'polyethylene glycol', label:'PEG', severity:5, reason:"Peut être contaminé par des traces de 1,4-dioxane." },
+  { match:'sodium lauryl sulfate', label:'Sodium Lauryl Sulfate', severity:4, reason:"Tensioactif irritant pour la peau et les muqueuses." },
+  { match:'parfum', label:'Parfum / Fragrance', severity:4, reason:"Composition non détaillée, peut contenir des allergènes ou traces de phtalates non déclarés." },
+  { match:'fragrance', label:'Parfum / Fragrance', severity:4, reason:"Composition non détaillée, peut contenir des allergènes ou traces de phtalates non déclarés." }
+];
+
+function computeCosmeticScore(product){
+  const text = (product.ingredients_text || product.ingredients_text_fr || product.ingredients_text_en || '').toLowerCase();
+  const labelsTags = product.labels_tags || [];
+  const ingredientsList = product.ingredients || [];
+  const ingredientCount = ingredientsList.length || (text ? text.split(',').length : 0);
+
+  let score = 88;
+  const positives = [];
+  const negatives = [];
+  const seenLabels = new Set();
+
+  if(!text){ negatives.push("Liste d'ingrédients non disponible sur Open Beauty Facts — score indicatif uniquement."); }
+  else {
+    FLAGGED_INGREDIENTS.forEach(item => {
+      if(text.includes(item.match) && !seenLabels.has(item.label)){
+        seenLabels.add(item.label); score -= item.severity; negatives.push(item.reason);
+      }
+    });
+  }
+  const isOrganic = labelsTags.some(l => l.includes('organic') || l.includes('bio'));
+  if(isOrganic){ score += 8; positives.push("Produit labellisé bio — généralement moins d'ingrédients de synthèse controversés."); }
+  if(text && seenLabels.size === 0){ positives.push("Aucun perturbateur endocrinien connu détecté dans la liste d'ingrédients disponible."); }
+  if(positives.length === 0) positives.push("Pas de point fort particulier identifié dans les données disponibles.");
+  if(negatives.length === 0) negatives.push("Aucun point de vigilance majeur identifié dans les données disponibles.");
+
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  const fragrance = text.includes('parfum') || text.includes('fragrance');
+
+  const details = [
+    { icon:'◆', label:'Perturbateurs', dot: seenLabels.size>0?'dot-red':'dot-green', value: seenLabels.size>0? (seenLabels.size + ' détecté(s)') : 'Aucun détecté' },
+    { icon:'◆', label:'Parfum', dot: fragrance?'dot-amber':'dot-green', value: fragrance?'Présent':'Absent' },
+    { icon:'◆', label:'Label bio', dot: isOrganic?'dot-green':'dot-grey', value: isOrganic?'Certifié bio':'Non labellisé' },
+    { icon:'◆', label:'Ingrédients', dot:'dot-grey', value: ingredientCount ? (ingredientCount + ' au total') : 'Non renseigné' }
+  ];
+  return { score, positives, negatives, ingredientCount, riskCount: seenLabels.size, fragrance, details };
+}
+
+function renderDetailCard(details){
+  const card = document.getElementById('detail-card');
+  card.innerHTML = details.map(d =>
+    '<div class="detail-row"><span class="detail-icon">' + d.icon + '</span><span class="detail-label">' + d.label + '</span><span class="detail-value ' + d.dot + '">' + d.value + '</span></div>'
+  ).join('');
+}
+function renderPointLists(positives, negatives){
+  document.getElementById('list-positive').innerHTML = positives.map(p => '<li><span class="point-icon plus">✓</span><span>' + p + '</span></li>').join('');
+  document.getElementById('list-negative').innerHTML = negatives.map(n => '<li><span class="point-icon minus">✕</span><span>' + n + '</span></li>').join('');
+}
+function scoreVerdict(pct){
+  if(pct >= 70) return { cls:'good' };
+  if(pct >= 40) return { cls:'mid' };
+  return { cls:'bad' };
+}
+
+function renderResult(product, barcode){
+  const result = computeSopkScore(product);
+  const pct = result.score;
+  const v = scoreVerdict(pct);
+  const name = product.product_name || product.product_name_fr || "Produit sans nom";
+  const brand = product.brands || "Marque inconnue";
+  const verdictText = pct >= 70 ? 'Bon choix' : (pct >= 40 ? 'Avec modération' : 'À limiter');
+
+  document.getElementById('p-name').textContent = name;
+  document.getElementById('p-brand').textContent = brand;
+  document.getElementById('gauge-label-text').textContent = "score SOPK";
+  document.getElementById('score-eyebrow').textContent = verdictText;
+  document.getElementById('score-card').className = 'score-card ' + v.cls;
+  document.getElementById('lbl-1').textContent = "Glucides /100g";
+  document.getElementById('lbl-2').textContent = "Sucres /100g";
+  document.getElementById('lbl-3').textContent = "Fibres /100g";
+  document.getElementById('stat-1').textContent = result.carbs !== null ? result.carbs.toFixed(1)+"g" : "–";
+  document.getElementById('stat-2').textContent = result.sugars !== null ? result.sugars.toFixed(1)+"g" : "–";
+  document.getElementById('stat-3').textContent = result.fiber !== null ? result.fiber.toFixed(1)+"g" : "–";
+  document.getElementById('gauge-pct').textContent = pct;
+  renderDetailCard(result.details);
+  renderPointLists(result.positives, result.negatives);
+
+  currentRecord = buildRecord(barcode, 'food', name, brand, pct, v.cls, verdictText,
+    [{l:"Glucides /100g", v:document.getElementById('stat-1').textContent},
+     {l:"Sucres /100g", v:document.getElementById('stat-2').textContent},
+     {l:"Fibres /100g", v:document.getElementById('stat-3').textContent}],
+    result.positives, result.negatives, result.details);
+  saveHistory(currentRecord);
+  showScreen('screen-result');
+}
+
+function renderCosmeticResult(product, barcode){
+  const result = computeCosmeticScore(product);
+  const pct = result.score;
+  const v = scoreVerdict(pct);
+  const name = product.product_name || product.product_name_fr || "Produit sans nom";
+  const brand = product.brands || "Marque inconnue";
+  const verdictText = pct >= 70 ? 'Peu de risques' : (pct >= 40 ? 'Avec modération' : 'Vigilance hormonale');
+
+  document.getElementById('p-name').textContent = name;
+  document.getElementById('p-brand').textContent = brand;
+  document.getElementById('gauge-label-text').textContent = "score hormonal";
+  document.getElementById('score-eyebrow').textContent = verdictText;
+  document.getElementById('score-card').className = 'score-card ' + v.cls;
+  document.getElementById('lbl-1').textContent = "Ingrédients";
+  document.getElementById('lbl-2').textContent = "À risque";
+  document.getElementById('lbl-3').textContent = "Parfum";
+  document.getElementById('stat-1').textContent = result.ingredientCount || "–";
+  document.getElementById('stat-2').textContent = result.riskCount;
+  document.getElementById('stat-3').textContent = result.fragrance ? "Oui" : "Non";
+  document.getElementById('gauge-pct').textContent = pct;
+  renderDetailCard(result.details);
+  renderPointLists(result.positives, result.negatives);
+
+  currentRecord = buildRecord(barcode, 'cosmetic', name, brand, pct, v.cls, verdictText,
+    [{l:"Ingrédients", v:document.getElementById('stat-1').textContent},
+     {l:"À risque", v:document.getElementById('stat-2').textContent},
+     {l:"Parfum", v:document.getElementById('stat-3').textContent}],
+    result.positives, result.negatives, result.details);
+  saveHistory(currentRecord);
+  showScreen('screen-result');
+}
+
+// ================= HISTORIQUE & LISTES (localStorage) =================
+function loadHistory(){ try{ return JSON.parse(localStorage.getItem('ovynera_history') || '[]'); }catch(e){ return []; } }
+function saveHistoryArray(arr){ localStorage.setItem('ovynera_history', JSON.stringify(arr)); }
+function loadLists(){ try{ return JSON.parse(localStorage.getItem('ovynera_lists') || '[]'); }catch(e){ return []; } }
+function saveListsArray(arr){ localStorage.setItem('ovynera_lists', JSON.stringify(arr)); }
+
+function buildRecord(barcode, mode, name, brand, score, verdictClass, verdictText, stats, positives, negatives, details){
+  const id = mode + '_' + barcode;
+  const history = loadHistory();
+  const existing = history.find(r => r.id === id);
+  return { id, barcode, mode, name, brand, score, verdictClass, verdictText, stats, positives, negatives, details,
+    timestamp: Date.now(), lists: existing ? existing.lists : [] };
+}
+function saveHistory(record){
+  let history = loadHistory();
+  history = history.filter(r => r.id !== record.id);
+  history.unshift(record);
+  if(history.length > 200) history = history.slice(0, 200);
+  saveHistoryArray(history);
+}
+
+const DOT_HEX = { good:'#8CA37B', mid:'#C99552', bad:'#C67268' };
+function renderHistoryCards(items, container){
+  if(items.length === 0){
+    container.innerHTML = '<div class="empty-lib"><span class="em">◇</span>Rien ici pour le moment.<br>Scanne un produit pour commencer.</div>';
+    return;
+  }
+  container.innerHTML = items.map(r =>
+    '<div class="lib-card" data-id="' + r.id + '">' +
+      '<span class="lib-dot" style="background:' + (DOT_HEX[r.verdictClass]||'#ccc') + '"></span>' +
+      '<div class="lib-info"><div class="lib-name">' + r.name + '</div><div class="lib-brand">' + r.brand + '</div></div>' +
+      '<div class="lib-score" style="color:' + (DOT_HEX[r.verdictClass]||'#ccc') + '">' + r.score + '</div>' +
+    '</div>'
+  ).join('');
+  container.querySelectorAll('.lib-card').forEach(card => {
+    card.addEventListener('click', () => openHistoryItem(card.dataset.id));
+  });
+}
+
+function renderHomeHistory(){
+  const history = loadHistory().slice(0, 5);
+  renderHistoryCards(history, document.getElementById('home-history'));
+}
+
+function openLibrary(filter){
+  libraryFilter = filter;
+  renderLibrary();
+  showScreen('screen-library');
+}
+
+function renderLibrary(){
+  const history = loadHistory();
+  const lists = loadLists();
+  const tabsEl = document.getElementById('library-tabs');
+  const baseTabs = [ {id:'all', label:'Tout'}, {id:'good', label:'Bons choix'}, {id:'mid', label:'Modérés'}, {id:'bad', label:'À éviter'}, {id:'__lists__', label:'Mes listes'} ];
+  let tabsHtml = baseTabs.map(t => '<button class="tab-chip ' + (libraryFilter===t.id?'active':'') + '" data-tab="' + t.id + '">' + t.label + '</button>').join('');
+  lists.forEach(l => {
+    tabsHtml += '<button class="tab-chip ' + (libraryFilter===('list_'+l.id)?'active':'') + '" data-tab="list_' + l.id + '">' + l.name + '</button>';
+  });
+  tabsEl.innerHTML = tabsHtml;
+  tabsEl.querySelectorAll('.tab-chip').forEach(chip => {
+    chip.addEventListener('click', () => { libraryFilter = chip.dataset.tab; renderLibrary(); });
+  });
+
+  let items;
+  if(libraryFilter === 'all' || libraryFilter === '__lists__'){ items = history; }
+  else if(libraryFilter.startsWith('list_')){
+    const listId = libraryFilter.replace('list_','');
+    items = history.filter(r => (r.lists||[]).includes(listId));
+  } else { items = history.filter(r => r.verdictClass === libraryFilter); }
+
+  renderHistoryCards(items, document.getElementById('library-scroll'));
+}
+
+function promptNewList(){
+  const name = prompt("Nom de la nouvelle liste :");
+  if(!name || !name.trim()) return;
+  const lists = loadLists();
+  lists.push({ id: 'l' + Date.now(), name: name.trim() });
+  saveListsArray(lists);
+  renderLibrary();
+}
+
+function openHistoryItem(id){
+  const history = loadHistory();
+  const r = history.find(x => x.id === id);
+  if(!r) return;
+  currentRecord = r;
+  document.getElementById('p-name').textContent = r.name;
+  document.getElementById('p-brand').textContent = r.brand;
+  document.getElementById('gauge-label-text').textContent = r.mode === 'cosmetic' ? 'score hormonal' : 'score SOPK';
+  document.getElementById('score-eyebrow').textContent = r.verdictText;
+  document.getElementById('score-card').className = 'score-card ' + r.verdictClass;
+  document.getElementById('gauge-pct').textContent = r.score;
+  renderDetailCard(r.details || []);
+  document.getElementById('lbl-1').textContent = r.stats[0].l;
+  document.getElementById('lbl-2').textContent = r.stats[1].l;
+  document.getElementById('lbl-3').textContent = r.stats[2].l;
+  document.getElementById('stat-1').textContent = r.stats[0].v;
+  document.getElementById('stat-2').textContent = r.stats[1].v;
+  document.getElementById('stat-3').textContent = r.stats[2].v;
+  renderPointLists(r.positives, r.negatives);
+  showScreen('screen-result');
+}
+
+function openListPicker(){
+  if(!currentRecord) return;
+  renderModalLists();
+  document.getElementById('modal-overlay').classList.add('active');
+}
+function closeListPicker(){
+  document.getElementById('modal-overlay').classList.remove('active');
+  renderLibrary();
+  renderHomeHistory();
+}
+function renderModalLists(){
+  const lists = loadLists();
+  const container = document.getElementById('modal-list-options');
+  if(lists.length === 0){
+    container.innerHTML = '<p style="font-size:13px;color:var(--muted);">Tu n\u2019as pas encore de liste \u2014 cr\u00e9es-en une ci-dessous.</p>';
+    return;
+  }
+  container.innerHTML = lists.map(l => {
+    const checked = (currentRecord.lists||[]).includes(l.id);
+    return '<div class="list-option" data-list-id="' + l.id + '">' +
+      '<span class="list-check ' + (checked?'checked':'') + '">' + (checked?'✓':'') + '</span>' +
+      '<span>' + l.name + '</span></div>';
+  }).join('');
+  container.querySelectorAll('.list-option').forEach(opt => {
+    opt.addEventListener('click', () => toggleListForRecord(opt.dataset.listId));
+  });
+}
+function toggleListForRecord(listId){
+  if(!currentRecord.lists) currentRecord.lists = [];
+  const idx = currentRecord.lists.indexOf(listId);
+  if(idx >= 0) currentRecord.lists.splice(idx,1); else currentRecord.lists.push(listId);
+  let history = loadHistory();
+  history = history.map(r => r.id === currentRecord.id ? currentRecord : r);
+  saveHistoryArray(history);
+  renderModalLists();
+}
+function createListFromModal(){
+  const input = document.getElementById('modal-new-list-name');
+  const name = input.value.trim();
+  if(!name) return;
+  const lists = loadLists();
+  const newList = { id: 'l' + Date.now(), name: name };
+  lists.push(newList);
+  saveListsArray(lists);
+  input.value = '';
+  if(!currentRecord.lists) currentRecord.lists = [];
+  currentRecord.lists.push(newList.id);
+  let history = loadHistory();
+  history = history.map(r => r.id === currentRecord.id ? currentRecord : r);
+  saveHistoryArray(history);
+  renderModalLists();
+}
+
+renderHomeHistory();
+</script>
+</body>
+</html>
